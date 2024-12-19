@@ -1,22 +1,21 @@
-package com.jim.universal_templates.entity;
+package com.jim.universal_templates.entity.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * 
- * @TableName user
+ * @author Jim_Lam
+ * @description UserVO
  */
-@TableName(value ="user")
+
 @Data
-public class User implements Serializable {
-    /**
-     * 
-     */
-    @TableId(type = IdType.AUTO)
+public class UserVO implements Serializable {
+    private static final long serialVersionUID = 6277514395052472116L;
+
     private Long id;
 
     /**
@@ -40,11 +39,6 @@ public class User implements Serializable {
     private Integer gender;
 
     /**
-     * 密码
-     */
-    private String userPassword;
-
-    /**
      * 电话
      */
     private String phone;
@@ -55,25 +49,9 @@ public class User implements Serializable {
     private String email;
 
     /**
-     * 是否有效(是否被封号)
-     */
-    private Integer isVaild;
-
-    /**
      * 创建时间
      */
     private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
-
-    /**
-     * 是否删除
-     */
-    @TableLogic
-    private Integer isDelete;
 
     /**
      * 角色
@@ -84,7 +62,4 @@ public class User implements Serializable {
      * 个人简介
      */
     private String profile;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }
