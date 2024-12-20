@@ -78,7 +78,7 @@ public class User implements Serializable {
     /**
      * 角色
      */
-    private Integer userRole;
+    private String userRole;
 
     /**
      * 个人简介

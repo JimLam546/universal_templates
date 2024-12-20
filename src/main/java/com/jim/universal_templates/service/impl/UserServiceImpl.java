@@ -28,8 +28,6 @@ import static com.jim.universal_templates.constant.UserConstant.USER_LOGIN_STATE
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService{
 
-    @Resource
-    private UserService userService;
 
     /**
      * 用户注册
@@ -55,7 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码不能小于8位, 不能超过20位!");
         }
         // 2. 账号是否存在
-        Long count = userService.lambdaQuery().eq(User::getUserPassword, userPassword).eq(User::getUserAccount, userAccount).count();
+        Long count = this.lambdaQuery().eq(User::getUserPassword, userPassword).eq(User::getUserAccount, userAccount).count();
         if (count > 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号已存在");
         }
@@ -64,7 +62,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptPassword);
-        boolean save = userService.save(user);
+        // 注册用户设置为普通用户权限
+        user.setUserRole("user");
+        user.setUsername("无名字");
+        boolean save = this.save(user);
         if (!save) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
         }
@@ -81,6 +82,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public String getEncryptPassword(String userPassword) {
+        // 加密盐
         final String ENCRYPTION_SALTS = "Jim";
         return DigestUtil.md5Hex((ENCRYPTION_SALTS + userPassword).getBytes());
     }
@@ -98,7 +100,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 2. 对用密码加密
         String encryptPassword = getEncryptPassword(userPassword);
         // 3. 查询账号密码是否匹配
-        User user = userService.lambdaQuery()
+        User user = this.lambdaQuery()
                 .eq(User::getUserAccount, userAccount)
                 .eq(User::getUserPassword, encryptPassword).one();
         if (user == null) {
@@ -120,9 +122,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         ThrowUtils.throwIf(attribute == null, ErrorCode.NOT_LOGIN_ERROR);
         User loginUser = (User) attribute;
-        User user = userService.getById(loginUser.getId());
+        User user = this.getById(loginUser.getId());
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_LOGIN_ERROR);
-        return userService.getSaveUser(user);
+        return this.getSaveUser(user);
     }
 
     @Override

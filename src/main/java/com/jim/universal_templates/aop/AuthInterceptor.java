@@ -3,6 +3,8 @@ package com.jim.universal_templates.aop;
 import com.jim.universal_templates.annotation.AuthCheck;
 import com.jim.universal_templates.entity.enums.UserRoleEnum;
 import com.jim.universal_templates.entity.vo.UserVO;
+import com.jim.universal_templates.exception.BusinessException;
+import com.jim.universal_templates.exception.ErrorCode;
 import com.jim.universal_templates.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -33,9 +35,18 @@ public class AuthInterceptor {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         UserVO loginUser = userService.getLoginUser(request);
-        UserRoleEnum enumByValue = UserRoleEnum.getEnumByValue(mustRole);
-        if (enumByValue == null) {
+        UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
+        // 不需要权限则放行
+        if (mustRoleEnum == null) {
             return joinPoint.proceed();
+        }
+        // 检查是否有权限
+        UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.getUserRole());
+        if (userRoleEnum == null) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "用户权限异常");
+        }
+        if (!userRoleEnum.equals(mustRoleEnum)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         return joinPoint.proceed();
     }

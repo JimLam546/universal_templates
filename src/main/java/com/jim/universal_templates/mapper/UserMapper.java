@@ -2,6 +2,7 @@ package com.jim.universal_templates.mapper;
 
 import com.jim.universal_templates.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author Jim_Lam
@@ -9,6 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2024-12-19 15:45:42
 * @Entity com.jim.universal_templates.entity.User
 */
+
 public interface UserMapper extends BaseMapper<User> {
 
 }

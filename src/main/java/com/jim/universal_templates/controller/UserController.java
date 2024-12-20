@@ -1,11 +1,13 @@
 package com.jim.universal_templates.controller;
 
+import com.jim.universal_templates.annotation.AuthCheck;
 import com.jim.universal_templates.common.BaseResponse;
 import com.jim.universal_templates.common.ResultUtil;
 import com.jim.universal_templates.entity.User;
 import com.jim.universal_templates.entity.request.UserLoginRequest;
 import com.jim.universal_templates.entity.request.UserRegisterRequest;
 import com.jim.universal_templates.entity.vo.UserVO;
+import com.jim.universal_templates.exception.BusinessException;
 import com.jim.universal_templates.exception.ErrorCode;
 import com.jim.universal_templates.exception.ThrowUtils;
 import com.jim.universal_templates.service.UserService;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
+import static com.jim.universal_templates.constant.UserConstant.USER_LOGIN_STATE;
 
 
 /**
@@ -64,6 +68,8 @@ public class UserController {
      */
     @GetMapping("/get/current")
     public BaseResponse<UserVO> getLoginUser(HttpServletRequest request) {
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+        ThrowUtils.throwIf(attribute == null, ErrorCode.NOT_LOGIN_ERROR);
         UserVO userVO = userService.getLoginUser(request);
         return ResultUtil.success(userVO);
     }
