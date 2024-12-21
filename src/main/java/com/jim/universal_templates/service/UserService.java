@@ -1,10 +1,13 @@
 package com.jim.universal_templates.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jim.universal_templates.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.jim.universal_templates.entity.request.UserQueryRequest;
 import com.jim.universal_templates.entity.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author Jim_Lam
@@ -24,4 +27,10 @@ public interface UserService extends IService<User> {
     UserVO getLoginUser(HttpServletRequest request);
 
     boolean userLogout(HttpServletRequest request);
+
+    UserVO getUserVOById(Long userId, HttpServletRequest request);
+
+    QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+    List<UserVO> getUserVOList(List<User> userList);
 }

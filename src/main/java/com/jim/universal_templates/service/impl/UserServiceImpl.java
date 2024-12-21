@@ -1,10 +1,18 @@
 package com.jim.universal_templates.service.impl;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jim.universal_templates.entity.User;
+import com.jim.universal_templates.entity.request.UserQueryRequest;
 import com.jim.universal_templates.entity.vo.UserVO;
 import com.jim.universal_templates.exception.BusinessException;
 import com.jim.universal_templates.exception.ErrorCode;
@@ -20,20 +28,20 @@ import javax.servlet.http.HttpServletRequest;
 import static com.jim.universal_templates.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
-* @author Jim_Lam
-* @description 针对表【user】的数据库操作Service实现
-* @createDate 2024-12-19 15:45:42
-*/
+ * @author Jim_Lam
+ * @description 针对表【user】的数据库操作Service实现
+ * @createDate 2024-12-19 15:45:42
+ */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
-    implements UserService{
+        implements UserService {
 
 
     /**
      * 用户注册
      *
-     * @param userAccount 用户账号
-     * @param userPassword 用户密码
+     * @param userAccount   用户账号
+     * @param userPassword  用户密码
      * @param checkPassword 确认Miami
      * @return 用户id
      */
@@ -71,7 +79,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         return user.getId();
     }
-
 
 
     /**
@@ -122,6 +129,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         ThrowUtils.throwIf(attribute == null, ErrorCode.NOT_LOGIN_ERROR);
         User loginUser = (User) attribute;
+        // 从数据库中查询
         User user = this.getById(loginUser.getId());
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_LOGIN_ERROR);
         return this.getSaveUser(user);
@@ -133,6 +141,43 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         ThrowUtils.throwIf(attribute == null, ErrorCode.NOT_LOGIN_ERROR);
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return true;
+    }
+
+    @Override
+    public UserVO getUserVOById(Long userId, HttpServletRequest request) {
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+        ThrowUtils.throwIf(attribute == null, ErrorCode.NOT_LOGIN_ERROR);
+        User user = this.getById(userId);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
+        return BeanUtil.copyProperties(user, UserVO.class);
+    }
+
+    @Override
+    public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
+        ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        Long id = userQueryRequest.getId();
+        String username = userQueryRequest.getUsername();
+        String userAccount = userQueryRequest.getUserAccount();
+        String phone = userQueryRequest.getPhone();
+        String userRole = userQueryRequest.getUserRole();
+        userQueryWrapper.eq(id != null && id > 0, "id", id);
+        userQueryWrapper.eq(StrUtil.isNotBlank(username), "username", username);
+        userQueryWrapper.eq(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
+        // 没有设置性别
+        userQueryWrapper.eq(StrUtil.isNotBlank(phone), "phone", phone);
+        userQueryWrapper.eq(StrUtil.isNotBlank(userRole), "userRole", phone);
+        return userQueryWrapper;
+    }
+
+    @Override
+    public List<UserVO> getUserVOList(List<User> userList) {
+        if (CollectionUtil.isEmpty(userList)) {
+            return Collections.emptyList();
+        }
+        return userList.stream()
+                .map(user -> BeanUtil.copyProperties(user, UserVO.class))
+                .collect(Collectors.toList());
     }
 }
 

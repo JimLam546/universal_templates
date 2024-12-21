@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 public class User implements Serializable {
     /**
-     * 
+     * 生成长整型的id
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -57,7 +57,7 @@ public class User implements Serializable {
     /**
      * 是否有效(是否被封号)
      */
-    private Integer isVaild;
+    private Integer isValid;
 
     /**
      * 创建时间
