@@ -61,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码不能小于8位, 不能超过20位!");
         }
         // 2. 账号是否存在
-        Long count = this.lambdaQuery().eq(User::getUserPassword, userPassword).eq(User::getUserAccount, userAccount).count();
+        Long count = this.lambdaQuery().eq(User::getUserAccount, userAccount).count();
         if (count > 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号已存在");
         }
